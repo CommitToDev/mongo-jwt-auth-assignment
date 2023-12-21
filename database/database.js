@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-mongoose.connect('mongodb+srv://abhishekshivale21:niAcNvZX9eNR2mkS@cluster0.m1ovjoj.mongodb.net/')
+mongoose.connect()
 
 const adminSchema = new mongoose.Schema({
     username:String,
@@ -16,12 +16,13 @@ const CourseSchema = new mongoose.Schema({
 const userSchema = new mongoose.Schema({
     username:String,
     password:String,
-    userID:String
+    userID:String,
+    couresPurchase:String    
 })
 
 const Admin = mongoose.model('Admin',adminSchema)
 const Course = mongoose.model('Course', CourseSchema);
-const User = mongoose.model('User',adminSchema)
+const User = mongoose.model('User',userSchema)
 
 
 
