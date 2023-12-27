@@ -4,18 +4,22 @@ router.use(express.json());
 const dataBase = require('../database/database')
 const jwt = require('jsonwebtoken')
 const jwtPassword = 'user'
-const userMiddelwares = require('../middelware/usermiddelware')
+const userMiddelwares = require('../middelware/usermiddelware');
+const mongoose = require('mongoose');
+
+
 
 
 router.post('/signup', async (req, res) => {
     const {username , password} = req.body;
-    let userID = Math.floor(Math.random()*100000)
+    
     try{
         const already = await dataBase.User.findOne({ username: username})
     if(password.length < 8){
       return res.json({msg: "Enter password with length minimum 8"})
     }
     if(!already){
+    let userID = Math.floor(Math.random()*100000)
       await dataBase.User.create({
         username,
         password,
@@ -44,7 +48,8 @@ router.post('/signup', async (req, res) => {
    }}catch(error){
     res.json({
       "error": "Server Error"
-    })
+    }
+    ,console.error(error))
    }
   })
 
@@ -59,8 +64,29 @@ router.post('/signup', async (req, res) => {
     }
   })
 
-  router.get('/courses/:courseId',userMiddelwares,async(req, res)=>{
-  })
+router.post('/courses/:courseId',userMiddelwares, async (req, res) => {
+  try {
+      let courseId = req.params.courseId;
+      const username = req.decoded.username; 
+      const isValidObjectId = mongoose.Types.ObjectId.isValid(courseId);
+        if (!isValidObjectId) {
+            return res.json({ message: 'Invalid Course ID format' });
+        }
+      if (username) {
+          const courseToPurchase = await dataBase.Course.findById(courseId);
+          const user = await dataBase.User.findOne({ username });
+          user.coursesPurchased.push(courseToPurchase);
+          await user.save();
+
+          res.json({ message: 'Course purchased successfully', purchasedCourse: courseToPurchase });
+      } else {
+          return res.json({ message: 'User not found' });
+      }
+  } catch (error) {
+      console.error(error);
+      res.json({ message: 'Internal server error' });
+  }
+});
 
   module.exports = router; 
   

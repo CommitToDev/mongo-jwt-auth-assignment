@@ -1,20 +1,26 @@
-const jwt = require('jsonwebtoken')
-const jwtPassword = 'user'
-function userMiddelwares (req, res, next){
-    const Authorization = req.headers['authorization']; 
-    if (!Authorization) {
-      return res.json("Unauthorized: Token missing");
+const jwt = require('jsonwebtoken');
+const jwtPassword = 'user';
+
+function userMiddleware(req, res, next) {
+    const authorization = req.headers['authorization']; 
+    if (!authorization) {
+        return res.status(401).json({ error: 'Unauthorized: Token missing' });
     }
-try{    
-    const verify = jwt.verify(Authorization, jwtPassword); 
-    if (verify) {
-     return   next();
-    }else{
-       return res.json("Unauthorized: Invalid token");
+
+    try {    
+        const decoded = jwt.verify(authorization, jwtPassword); 
+        req.decoded = decoded; 
+        next();
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError') {
+            return res.json({ error: 'Unauthorized: Invalid token' });
+        } else if (error.name === 'TokenExpiredError') {
+            return res.json({ error: 'Unauthorized: Token expired' });
+        } else {
+            console.error(error);
+            return res.json({ error: 'Middleware Problem' });
+        }
     }
-}catch(error){
-    console.error(error);
-  return  res.json("Middelware Problem")
 }
-}
-module.exports = userMiddelwares;
+
+module.exports = userMiddleware;
