@@ -64,29 +64,32 @@ router.post('/signup', async (req, res) => {
     }
   })
 
-router.post('/courses/:courseId',userMiddelwares, async (req, res) => {
-  try {
-      let courseId = req.params.courseId;
-      const username = req.decoded.username; 
-      const isValidObjectId = mongoose.Types.ObjectId.isValid(courseId);
-        if (!isValidObjectId) {
-            return res.json({ message: 'Invalid Course ID format' });
-        }
-      if (username) {
-          const courseToPurchase = await dataBase.Course.findById(courseId);
-          const user = await dataBase.User.findOne({ username });
-          user.coursesPurchased.push(courseToPurchase);
-          await user.save();
+router.post('/courses/:courseId', userMiddelwares, async (req, res) => {
+try {
+  const courseId = req.params.courseId;
+const username = req.decode.username;
 
-          res.json({ message: 'Course purchased successfully', purchasedCourse: courseToPurchase });
-      } else {
-          return res.json({ message: 'User not found' });
-      }
-  } catch (error) {
-      console.error(error);
-      res.json({ message: 'Internal server error' });
-  }
+  await dataBase.User.updateOne(
+    { username: username },
+    { $push: { coursesPurchased: courseId } }
+  );  
+
+  res.json({ message: 'Course purchased successfully'});
+} catch (error) {
+  console.error(error)
+    res.json({ message: 'Internal server error' });
+}
 });
 
+router.get('/purchasedCourses', userMiddelwares, async(req, res) => {
+  const username = req.decode.username;
+  try {
+    const user = await dataBase.User.findOne({ username:username }).populate('coursesPurchased')
+    res.json(user.coursesPurchased);
+  }catch(error){
+    console.error(error)
+    res.json("Server error");
+   }
+});
   module.exports = router; 
   

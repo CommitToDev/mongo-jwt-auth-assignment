@@ -64,9 +64,9 @@ router.post('/courses',adminMiddelwares, async (req, res) => {
   }
 });
 
-router.get('/courses',adminMiddelwares,async(req, res)=>{
+router.get('/courses',adminMiddelwares,(req, res)=>{
   try {
-      await dataBase.Course.find().then((courses)=>{
+       dataBase.Course.find().then((courses)=>{
         res.json(courses)
       })
   }catch(error){

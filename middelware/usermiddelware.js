@@ -8,9 +8,12 @@ function userMiddleware(req, res, next) {
     }
 
     try {    
-        const decoded = jwt.verify(authorization, jwtPassword); 
-        req.decoded = decoded; 
-        next();
+        const verify = jwt.verify(authorization, jwtPassword); 
+      if(verify){ 
+        const decode = jwt.decode(authorization)
+        req.decode = decode
+         next();
+    }
     } catch (error) {
         if (error.name === 'JsonWebTokenError') {
             return res.json({ error: 'Unauthorized: Invalid token' });

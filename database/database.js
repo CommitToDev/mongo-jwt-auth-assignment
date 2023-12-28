@@ -12,23 +12,16 @@ const CourseSchema = new mongoose.Schema({
     description: String,
     price: String,
     image: String,
-    courseId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Course'
-    }
+    courseID: String
 });
 
 const userSchema = new mongoose.Schema({
     username: String,
     password: String,
-    userID: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    },
     coursesPurchased: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Course'
-    }]
+    }],
 });
 
 const Admin = mongoose.model('Admin', adminSchema);
